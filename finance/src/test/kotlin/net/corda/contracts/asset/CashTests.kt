@@ -56,7 +56,7 @@ class CashTests : TestDependencyInjectionBase() {
     fun setUp() {
         LogHelper.setLevel(NodeVaultService::class)
         val dataSourceProps = makeTestDataSourceProperties()
-        database = configureDatabase(dataSourceProps, makeTestDatabaseProperties())
+        database = configureDatabase(dataSourceProps,  databaseProperties = makeTestDatabaseProperties())
         database.transaction {
             val hibernateConfig = HibernateConfiguration(NodeSchemaService(), makeTestDatabaseProperties())
             miniCorpServices = object : MockServices(MINI_CORP_KEY) {

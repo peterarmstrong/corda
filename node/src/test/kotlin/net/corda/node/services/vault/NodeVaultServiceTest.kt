@@ -51,7 +51,7 @@ class NodeVaultServiceTest : TestDependencyInjectionBase() {
     fun setUp() {
         LogHelper.setLevel(NodeVaultService::class)
         val dataSourceProps = makeTestDataSourceProperties()
-        database = configureDatabase(dataSourceProps, makeTestDatabaseProperties())
+        database = configureDatabase(dataSourceProps, databaseProperties = makeTestDatabaseProperties())
         database.transaction {
             val hibernateConfig = HibernateConfiguration(NodeSchemaService(), makeTestDatabaseProperties())
             services = object : MockServices() {
