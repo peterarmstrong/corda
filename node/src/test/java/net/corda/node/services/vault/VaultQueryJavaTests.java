@@ -49,7 +49,7 @@ public class VaultQueryJavaTests extends TestDependencyInjectionBase {
     public void setUp() {
         Properties dataSourceProps = makeTestDataSourceProperties(SecureHash.randomSHA256().toString());
         Set<MappedSchema> customSchemas = new HashSet<>(Collections.singletonList(DummyLinearStateSchemaV1.INSTANCE));
-        database = configureDatabase(dataSourceProps, customSchemas, makeTestDatabaseProperties());
+        database = configureDatabase(dataSourceProps, makeTestDatabaseProperties(), customSchemas);
         database.transaction(statement -> {
             HibernateConfiguration hibernateConfig = new HibernateConfiguration(new NodeSchemaService(customSchemas), makeTestDatabaseProperties());
             services = new MockServices(getMEGA_CORP_KEY()) {

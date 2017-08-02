@@ -45,7 +45,7 @@ class VaultWithCashTest : TestDependencyInjectionBase() {
     fun setUp() {
         LogHelper.setLevel(VaultWithCashTest::class)
         val dataSourceProps = makeTestDataSourceProperties()
-        database = configureDatabase(dataSourceProps, databaseProperties = makeTestDatabaseProperties())
+        database = configureDatabase(dataSourceProps, makeTestDatabaseProperties())
         database.transaction {
             val hibernateConfig = HibernateConfiguration(NodeSchemaService(), makeTestDatabaseProperties())
             services = object : MockServices() {
