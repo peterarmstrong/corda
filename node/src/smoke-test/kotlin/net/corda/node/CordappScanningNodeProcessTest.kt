@@ -36,8 +36,8 @@ class CordappScanningNodeProcessTest {
         val pluginsDir = (factory.baseDirectory(aliceConfig) / "plugins").createDirectories()
         cordappJar.copyToDirectory(pluginsDir)
 
-        factory.create(aliceConfig).use {
-            it.connect().use {
+        factory.create(aliceConfig).use { node ->
+            node.connect().use {
                 // If the CorDapp wasn't scanned then SellerFlow won't have been picked up as an RPC flow
                 assertThat(it.proxy.registeredFlows()).contains("net.corda.traderdemo.flow.SellerFlow")
             }
