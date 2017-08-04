@@ -53,15 +53,6 @@ class CordaPersistence(var dataSource: HikariDataSource, var nodeSchemaService: 
         return ctx?.connection ?: throw IllegalStateException("Was expecting to find database transaction: must wrap calling code within a transaction.")
     }
 
-    fun <T> isolatedTransaction(block: DatabaseTransaction.() -> T): T {
-        val context = DatabaseTransactionManager.setThreadLocalTx(null)
-        return try {
-            transaction(block)
-        } finally {
-            DatabaseTransactionManager.restoreThreadLocalTx(context)
-        }
-    }
-
     fun <T> transaction(statement: DatabaseTransaction.() -> T): T {
         DatabaseTransactionManager.dataSource = this
         return transaction(transactionIsolationLevel, 3, statement)
