@@ -151,6 +151,12 @@ class ScheduledFlowTests {
         val stateMapA = statesFromA.associateBy { it.ref.txhash }
         val stateMapB = statesFromB.associateBy { it.ref.txhash }
 
+        val uniqueToA = stateMapA.filter { !stateMapB.containsKey(it.key) }
+        val uniqueToB = stateMapB.filter { !stateMapB.containsKey(it.key) }
+
+        require(uniqueToA.isEmpty()) {"A contain some transactions B doesn't have ${uniqueToA.values}"}
+        require(uniqueToB.isEmpty()) {"B contain some transactions A doesn't have ${uniqueToB.values}"}
+
         stateMapA.forEach {
             assertEquals(it.value, stateMapB[it.key], "Expect identical data on both nodes")
         }
