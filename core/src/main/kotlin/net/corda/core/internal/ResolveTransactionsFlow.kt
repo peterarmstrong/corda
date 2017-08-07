@@ -147,7 +147,7 @@ class ResolveTransactionsFlow(private val txHashes: Set<SecureHash>,
             if (limitCounter > limit)
                 throw ExcessivelyLargeTransactionGraph()
         }
-        return resultQ.values.filter { serviceHub.validatedTransactions.getTransaction(it.id) == null }
+        return resultQ.values
     }
 
     /**
