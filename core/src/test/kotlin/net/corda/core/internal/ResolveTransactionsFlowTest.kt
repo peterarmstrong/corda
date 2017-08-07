@@ -58,7 +58,7 @@ class ResolveTransactionsFlowTest {
     @Test
     fun `resolve from two hashes`() {
         val (stx1, stx2) = makeTransactions()
-        val p = TestFlow(setOf(stx2.id), a.info.legalIdentity)
+        val p = TestFlow(setOf(stx2.id), a.services.legalIdentity.party)
         val future = b.services.startFlow(p).resultFuture
         mockNet.runNetwork()
         val results = future.getOrThrow()
@@ -73,7 +73,7 @@ class ResolveTransactionsFlowTest {
     @Test
     fun `dependency with an error`() {
         val stx = makeTransactions(signFirstTX = false).second
-        val p = TestFlow(setOf(stx.id), a.info.legalIdentity)
+        val p = TestFlow(setOf(stx.id), a.services.legalIdentity.party)
         val future = b.services.startFlow(p).resultFuture
         mockNet.runNetwork()
         assertFailsWith(SignedTransaction.SignaturesMissingException::class) { future.getOrThrow() }
@@ -82,7 +82,7 @@ class ResolveTransactionsFlowTest {
     @Test
     fun `resolve from a signed transaction`() {
         val (stx1, stx2) = makeTransactions()
-        val p = TestFlow(stx2, a.info.legalIdentity)
+        val p = TestFlow(stx2, a.services.legalIdentity.party)
         val future = b.services.startFlow(p).resultFuture
         mockNet.runNetwork()
         future.getOrThrow()
@@ -107,7 +107,7 @@ class ResolveTransactionsFlowTest {
             }
             cursor = stx
         }
-        val p = TestFlow(setOf(cursor.id), a.info.legalIdentity, 40)
+        val p = TestFlow(setOf(cursor.id), a.services.legalIdentity.party, 40)
         val future = b.services.startFlow(p).resultFuture
         mockNet.runNetwork()
         assertFailsWith<ResolveTransactionsFlow.ExcessivelyLargeTransactionGraph> { future.getOrThrow() }
@@ -131,7 +131,7 @@ class ResolveTransactionsFlowTest {
             a.services.recordTransactions(stx2, stx3)
         }
 
-        val p = TestFlow(setOf(stx3.id), a.info.legalIdentity)
+        val p = TestFlow(setOf(stx3.id), a.services.legalIdentity.party)
         val future = b.services.startFlow(p).resultFuture
         mockNet.runNetwork()
         future.getOrThrow()
@@ -153,7 +153,7 @@ class ResolveTransactionsFlowTest {
             a.services.attachments.importAttachment(makeJar())
         }
         val stx2 = makeTransactions(withAttachment = id).second
-        val p = TestFlow(stx2, a.info.legalIdentity)
+        val p = TestFlow(stx2, a.services.legalIdentity.party)
         val future = b.services.startFlow(p).resultFuture
         mockNet.runNetwork()
         future.getOrThrow()

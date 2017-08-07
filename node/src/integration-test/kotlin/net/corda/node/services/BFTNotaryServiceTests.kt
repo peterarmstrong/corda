@@ -93,7 +93,7 @@ class BFTNotaryServiceTests {
         val notary = bftNotaryCluster(clusterSize)
         node.run {
             val issueTx = signInitialTransaction(notary) {
-                addOutputState(DummyContract.SingleOwnerState(owner = info.legalIdentity))
+                addOutputState(DummyContract.SingleOwnerState(owner = (services.legalIdentity.party)))
             }
             database.transaction {
                 services.recordTransactions(issueTx)
@@ -128,7 +128,7 @@ class BFTNotaryServiceTests {
                     assertEquals(StateRef(issueTx.id, 0), stateRef)
                     assertEquals(spendTxs[successfulIndex].id, consumingTx.id)
                     assertEquals(0, consumingTx.inputIndex)
-                    assertEquals(info.legalIdentity, consumingTx.requestingParty)
+                    assertEquals(services.legalIdentity.party, consumingTx.requestingParty)
                 }
             }
         }

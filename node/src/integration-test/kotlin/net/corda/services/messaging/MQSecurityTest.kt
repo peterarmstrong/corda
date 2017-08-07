@@ -85,7 +85,7 @@ abstract class MQSecurityTest : NodeBasedTest() {
     @Test
     fun `create queue for peer which has not been communicated with`() {
         val bob = startNode(BOB.name).getOrThrow()
-        assertAllQueueCreationAttacksFail("$PEERS_PREFIX${bob.info.legalIdentity.owningKey.toBase58String()}")
+        assertAllQueueCreationAttacksFail("$PEERS_PREFIX${bob.services.legalIdentityKey.toBase58String()}")
     }
 
     @Test
@@ -218,7 +218,7 @@ abstract class MQSecurityTest : NodeBasedTest() {
     private fun startBobAndCommunicateWithAlice(): Party {
         val bob = startNode(BOB.name).getOrThrow()
         bob.registerInitiatedFlow(ReceiveFlow::class.java)
-        val bobParty = bob.info.legalIdentity
+        val bobParty = bob.services.legalIdentity.party
         // Perform a protocol exchange to force the peer queue to be created
         alice.services.startFlow(SendFlow(bobParty, 0)).resultFuture.getOrThrow()
         return bobParty

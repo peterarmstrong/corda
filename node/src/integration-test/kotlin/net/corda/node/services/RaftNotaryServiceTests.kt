@@ -41,7 +41,7 @@ class RaftNotaryServiceTests : NodeBasedTest() {
         firstSpend.resultFuture.getOrThrow()
 
         val secondSpendBuilder = TransactionBuilder(notaryParty).withItems(inputState).run {
-            val dummyState = DummyContract.SingleOwnerState(0, bankA.info.legalIdentity)
+            val dummyState = DummyContract.SingleOwnerState(0, bankA.services.legalIdentity.party)
             addOutputState(dummyState)
             this
         }
@@ -55,7 +55,7 @@ class RaftNotaryServiceTests : NodeBasedTest() {
 
     private fun issueState(node: AbstractNode, notary: Party): StateAndRef<*> {
         return node.database.transaction {
-            val builder = DummyContract.generateInitial(Random().nextInt(), notary, node.info.legalIdentity.ref(0))
+            val builder = DummyContract.generateInitial(Random().nextInt(), notary, node.services.legalIdentity.party.ref(0))
             val stx = node.services.signInitialTransaction(builder)
             node.services.recordTransactions(stx)
             StateAndRef(builder.outputStates().first(), StateRef(stx.id, 0))

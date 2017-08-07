@@ -118,10 +118,10 @@ class VerifierTests {
             val alice = aliceFuture.get()
             val notary = notaryFuture.get()
             startVerifier(notary)
-            alice.rpc.startFlow(::CashIssueFlow, 10.DOLLARS, OpaqueBytes.of(0), alice.nodeInfo.legalIdentity, notaryFuture.get().nodeInfo.notaryIdentity).returnValue.get()
+            alice.rpc.startFlow(::CashIssueFlow, 10.DOLLARS, OpaqueBytes.of(0), alice.mainIdentity, notaryFuture.get().nodeInfo.notaryIdentity).returnValue.get()
             notary.waitUntilNumberOfVerifiers(1)
             for (i in 1..10) {
-                alice.rpc.startFlow(::CashPaymentFlow, 10.DOLLARS, alice.nodeInfo.legalIdentity).returnValue.get()
+                alice.rpc.startFlow(::CashPaymentFlow, 10.DOLLARS, alice.mainIdentity).returnValue.get()
             }
         }
     }

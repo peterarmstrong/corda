@@ -69,7 +69,7 @@ public class CordaRPCJavaClientTest extends NodeBasedTest {
 
         FlowHandle<AbstractCashFlow.Result> flowHandle = rpcProxy.startFlowDynamic(CashIssueFlow.class,
                 dollars123, OpaqueBytes.of("1".getBytes()),
-                node.info.getLegalIdentity(), node.info.getLegalIdentity());
+                node.getServices().getLegalIdentity().getParty(), node.getServices().getLegalIdentity().getParty());
         System.out.println("Started issuing cash, waiting on result");
         flowHandle.getReturnValue().get();
 

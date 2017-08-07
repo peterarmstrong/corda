@@ -59,7 +59,7 @@ class P2PSecurityTest : NodeBasedTest() {
         val config = testNodeConfiguration(
                 baseDirectory = baseDirectory(legalName),
                 myLegalName = legalName).also {
-            whenever(it.networkMapService).thenReturn(NetworkMapInfo(networkMapNode.configuration.p2pAddress, networkMapNode.info.legalIdentity.name))
+            whenever(it.networkMapService).thenReturn(NetworkMapInfo(networkMapNode.configuration.p2pAddress, networkMapNode.services.legalIdentity.name))
         }
         config.configureWithDevSSLCertificate() // This creates the node's TLS cert with the CN as the legal name
         return SimpleNode(config, trustRoot = trustRoot).apply { start() }

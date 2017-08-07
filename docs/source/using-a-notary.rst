@@ -47,7 +47,7 @@ Next we create a state object and assign ourselves as the owner. For this exampl
 
 .. sourcecode:: kotlin
 
-   val myIdentity = serviceHub.myInfo.legalIdentity
+   val myIdentity = serviceHub.legalIdentity.party
    val state = DummyContract.SingleOwnerState(magicNumber = 42, owner = myIdentity.owningKey)
 
 Then we add the state as the transaction output along with the relevant command. The state will automatically be assigned
@@ -63,7 +63,7 @@ We then sign the transaction, build and record it to our transaction storage:
 
 .. sourcecode:: kotlin
 
-   val mySigningKey: PublicKey = serviceHub.legalIdentityKey
+   val mySigningKey: PublicKey = serviceHub.legalIdentity.owningKey
    val issueTransaction = serviceHub.signInitialTransaction(issueTransaction, mySigningKey)
    serviceHub.recordTransactions(issueTransaction)
 

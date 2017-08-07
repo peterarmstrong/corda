@@ -20,7 +20,7 @@ class FlowVersioningTest : NodeBasedTest() {
                 startNode(ALICE.name, platformVersion = 2),
                 startNode(BOB.name, platformVersion = 3)).getOrThrow()
         bob.installCoreFlow(ClientFlow::class, ::SendBackPlatformVersionFlow)
-        val resultFuture = alice.services.startFlow(ClientFlow(bob.info.legalIdentity)).resultFuture
+        val resultFuture = alice.services.startFlow(ClientFlow(bob.services.legalIdentity.party)).resultFuture
         assertThat(resultFuture.getOrThrow()).isEqualTo(2)
     }
 

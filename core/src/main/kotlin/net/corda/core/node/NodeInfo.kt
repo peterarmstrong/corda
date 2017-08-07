@@ -21,17 +21,12 @@ data class ServiceEntry(val info: ServiceInfo, val identity: PartyAndCertificate
 // TODO We currently don't support multi-IP/multi-identity nodes, we only left slots in the data structures.
 @CordaSerializable
 data class NodeInfo(val addresses: List<NetworkHostAndPort>,
-                    val legalIdentityAndCert: PartyAndCertificate, //TODO This field will be removed in future PR which gets rid of services.
+                    val legalIdentityAndCert2: PartyAndCertificate,
                     val legalIdentitiesAndCerts: NonEmptySet<PartyAndCertificate>,
                     val platformVersion: Int,
                     var advertisedServices: List<ServiceEntry> = emptyList(),
                     val worldMapLocation: WorldMapLocation? = null) {
-    init {
-        require(advertisedServices.none { it.identity == legalIdentityAndCert }) { "Service identities must be different from node legal identity" }
-    }
-    val legalIdentity: Party
-        get() = legalIdentityAndCert.party
-    val notaryIdentity: Party
+    val notaryIdentity: Party // TODO This part will be removed with services removal.
         get() = advertisedServices.single { it.info.type.isNotary() }.identity.party
     fun serviceIdentities(type: ServiceType): List<Party> {
         return advertisedServices.filter { it.info.type.isSubTypeOf(type) }.map { it.identity.party }

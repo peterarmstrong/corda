@@ -79,7 +79,7 @@ class CordaRPCClientTest : NodeBasedTest() {
         println("Starting flow")
         val flowHandle = connection!!.proxy.startTrackedFlow(
                 ::CashIssueFlow,
-                20.DOLLARS, OpaqueBytes.of(0), node.info.legalIdentity, node.info.legalIdentity)
+                20.DOLLARS, OpaqueBytes.of(0), node.services.legalIdentity.party, node.services.legalIdentity.party)
         println("Started flow, waiting on result")
         flowHandle.progress.subscribe {
             println("PROGRESS $it")
@@ -90,7 +90,7 @@ class CordaRPCClientTest : NodeBasedTest() {
     @Test
     fun `sub-type of FlowException thrown by flow`() {
         login(rpcUser.username, rpcUser.password)
-        val handle = connection!!.proxy.startFlow(::CashPaymentFlow, 100.DOLLARS, node.info.legalIdentity)
+        val handle = connection!!.proxy.startFlow(::CashPaymentFlow, 100.DOLLARS, node.services.legalIdentity.party)
         assertThatExceptionOfType(CashException::class.java).isThrownBy {
             handle.returnValue.getOrThrow()
         }
@@ -99,7 +99,7 @@ class CordaRPCClientTest : NodeBasedTest() {
     @Test
     fun `check basic flow has no progress`() {
         login(rpcUser.username, rpcUser.password)
-        connection!!.proxy.startFlow(::CashPaymentFlow, 100.DOLLARS, node.info.legalIdentity).use {
+        connection!!.proxy.startFlow(::CashPaymentFlow, 100.DOLLARS, node.services.legalIdentity.party).use {
             assertFalse(it is FlowProgressHandle<*>)
             assertTrue(it is FlowHandle<*>)
         }
@@ -114,7 +114,7 @@ class CordaRPCClientTest : NodeBasedTest() {
 
         val flowHandle = proxy.startFlow(::CashIssueFlow,
                 123.DOLLARS, OpaqueBytes.of(0),
-                node.info.legalIdentity, node.info.legalIdentity
+                node.services.legalIdentity.party, node.services.legalIdentity.party
         )
         println("Started issuing cash, waiting on result")
         flowHandle.returnValue.get()
@@ -139,7 +139,7 @@ class CordaRPCClientTest : NodeBasedTest() {
                     countShellFlows++
             }
         }
-        val nodeIdentity = node.info.legalIdentity
+        val nodeIdentity = node.services.legalIdentity.party
         node.services.startFlow(CashIssueFlow(2000.DOLLARS, OpaqueBytes.of(0), nodeIdentity, nodeIdentity), FlowInitiator.Shell).resultFuture.getOrThrow()
         proxy.startFlow(::CashIssueFlow,
                 123.DOLLARS, OpaqueBytes.of(0),

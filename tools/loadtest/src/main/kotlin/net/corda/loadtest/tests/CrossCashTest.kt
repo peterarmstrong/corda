@@ -32,13 +32,13 @@ data class CrossCashCommand(
     override fun toString(): String {
         return when (command) {
             is CashFlowCommand.IssueCash -> {
-                "ISSUE ${node.info.legalIdentity} -> ${command.recipient} : ${command.amount}"
+                "ISSUE ${node.mainIdentity} -> ${command.recipient} : ${command.amount}"
             }
             is CashFlowCommand.PayCash -> {
-                "MOVE ${node.info.legalIdentity} -> ${command.recipient} : ${command.amount}"
+                "MOVE ${node.mainIdentity} -> ${command.recipient} : ${command.amount}"
             }
             is CashFlowCommand.ExitCash -> {
-                "EXIT ${node.info.legalIdentity} : ${command.amount}"
+                "EXIT ${node.mainIdentity} : ${command.amount}"
             }
         }
     }
@@ -116,18 +116,18 @@ val crossCashTest = LoadTest<CrossCashCommand, CrossCashState>(
         "Creating Cash transactions randomly",
 
         generate = { (nodeVaults), parallelism ->
-            val nodeMap = simpleNodes.associateBy { it.info.legalIdentity }
+            val nodeMap = simpleNodes.associateBy { it.mainIdentity }
             val anonymous = true
             Generator.pickN(parallelism, simpleNodes).flatMap { nodes ->
                 Generator.sequence(
                         nodes.map { node ->
-                            val quantities = nodeVaults[node.info.legalIdentity] ?: mapOf()
+                            val quantities = nodeVaults[node.mainIdentity] ?: mapOf()
                             val possibleRecipients = nodeMap.keys.toList()
                             val moves = quantities.map {
-                                it.value.toDouble() / 1000 to generateMove(it.value, USD, node.info.legalIdentity, possibleRecipients, anonymous)
+                                it.value.toDouble() / 1000 to generateMove(it.value, USD, node.mainIdentity, possibleRecipients, anonymous)
                             }
                             val exits = quantities.mapNotNull {
-                                if (it.key == node.info.legalIdentity) {
+                                if (it.key == node.mainIdentity) {
                                     it.value.toDouble() / 3000 to generateExit(it.value, USD)
                                 } else {
                                     null
@@ -136,7 +136,7 @@ val crossCashTest = LoadTest<CrossCashCommand, CrossCashState>(
                             val command = Generator.frequency(
                                     listOf(1.0 to generateIssue(10000, USD, notary.info.notaryIdentity, possibleRecipients, anonymous)) + moves + exits
                             )
-                            command.map { CrossCashCommand(it, nodeMap[node.info.legalIdentity]!!) }
+                            command.map { CrossCashCommand(it, nodeMap[node.mainIdentity]!!) }
                         }
                 )
             }
@@ -147,7 +147,7 @@ val crossCashTest = LoadTest<CrossCashCommand, CrossCashState>(
                 is CashFlowCommand.IssueCash -> {
                     val newDiffQueues = state.copyQueues()
                     val originators = newDiffQueues.getOrPut(command.command.recipient, { HashMap() })
-                    val issuer = command.node.info.legalIdentity
+                    val issuer = command.node.mainIdentity
                     val quantity = command.command.amount.quantity
                     val originator = issuer
                     val queue = originators.getOrPut(originator, { ArrayList() })
@@ -158,17 +158,17 @@ val crossCashTest = LoadTest<CrossCashCommand, CrossCashState>(
                     val newNodeVaults = state.copyVaults()
                     val newDiffQueues = state.copyQueues()
                     val recipientOriginators = newDiffQueues.getOrPut(command.command.recipient, { HashMap() })
-                    val senderQuantities = newNodeVaults[command.node.info.legalIdentity]!!
+                    val senderQuantities = newNodeVaults[command.node.mainIdentity]!!
                     val amount = command.command.amount
                     val issuer = command.command.issuerConstraint!!
-                    val originator = command.node.info.legalIdentity
+                    val originator = command.node.mainIdentity
                     val senderQuantity = senderQuantities[issuer] ?: throw Exception(
-                            "Generated payment of ${command.command.amount} from ${command.node.info.legalIdentity}, " +
+                            "Generated payment of ${command.command.amount} from ${command.node.mainIdentity}, " +
                                     "however there is no cash from $issuer!"
                     )
                     if (senderQuantity < amount.quantity) {
                         throw Exception(
-                                "Generated payment of ${command.command.amount} from ${command.node.info.legalIdentity}, " +
+                                "Generated payment of ${command.command.amount} from ${command.node.mainIdentity}, " +
                                         "however they only have $senderQuantity!"
                         )
                     }
@@ -183,7 +183,7 @@ val crossCashTest = LoadTest<CrossCashCommand, CrossCashState>(
                 }
                 is CashFlowCommand.ExitCash -> {
                     val newNodeVaults = state.copyVaults()
-                    val issuer = command.node.info.legalIdentity
+                    val issuer = command.node.mainIdentity
                     val quantity = command.command.amount.quantity
                     val issuerQuantities = newNodeVaults[issuer]!!
                     val issuerQuantity = issuerQuantities[issuer] ?: throw Exception(
@@ -225,7 +225,7 @@ val crossCashTest = LoadTest<CrossCashCommand, CrossCashState>(
                     val issuer = state.amount.token.issuer.party
                     quantities.put(issuer, (quantities[issuer] ?: 0L) + state.amount.quantity)
                 }
-                currentNodeVaults.put(it.info.legalIdentity, quantities)
+                currentNodeVaults.put(it.mainIdentity, quantities)
             }
             val (consistentVaults, diffQueues) = if (previousState == null) {
                 Pair(currentNodeVaults, mapOf<AbstractParty, Map<AbstractParty, List<Pair<AbstractParty, Long>>>>())

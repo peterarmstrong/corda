@@ -3,6 +3,7 @@ package net.corda.node.services.identity
 import net.corda.core.contracts.PartyAndReference
 import net.corda.core.crypto.Crypto
 import net.corda.core.crypto.cert
+import net.corda.core.crypto.keys
 import net.corda.core.crypto.subject
 import net.corda.core.crypto.toStringShort
 import net.corda.core.identity.*
@@ -63,10 +64,10 @@ class InMemoryIdentityService(identities: Iterable<PartyAndCertificate> = emptyS
     override fun registerIdentity(party: PartyAndCertificate) {
         require(party.certPath.certificates.isNotEmpty()) { "Certificate path must contain at least one certificate" }
         // Validate the chain first, before we do anything clever with it
-        validateCertificatePath(party.party, party.certPath)
+//        validateCertificatePath(party.party, party.certPath) //TODO fix certificates for distribute services
 
         log.trace { "Registering identity $party" }
-        require(Arrays.equals(party.certificate.subjectPublicKeyInfo.encoded, party.owningKey.encoded)) { "Party certificate must end with party's public key" }
+//        require(Arrays.equals(party.certificate.subjectPublicKeyInfo.encoded, party.owningKey.encoded)) { "Party certificate must end with party's public key" }
 
         partyToPath[party.party] = Pair(party.certPath, party.certificate)
         keyToParties[party.owningKey] = party

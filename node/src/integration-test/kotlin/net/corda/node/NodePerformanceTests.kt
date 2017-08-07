@@ -111,12 +111,12 @@ class NodePerformanceTests {
             a.rpcClientToNode().use("A", "A") { connection ->
                 println("ISSUING")
                 val doneFutures = (1..100).toList().parallelStream().map {
-                    connection.proxy.startFlow(::CashIssueFlow, 1.DOLLARS, OpaqueBytes.of(0), a.nodeInfo.legalIdentity, a.nodeInfo.notaryIdentity).returnValue
+                    connection.proxy.startFlow(::CashIssueFlow, 1.DOLLARS, OpaqueBytes.of(0), a.mainIdentity, a.nodeInfo.notaryIdentity).returnValue
                 }.toList()
                 Futures.allAsList(doneFutures).get()
                 println("STARTING PAYMENT")
                 startPublishingFixedRateInjector(metricRegistry, 8, 5.minutes, 100L / TimeUnit.SECONDS) {
-                    connection.proxy.startFlow(::CashPaymentFlow, 1.DOLLARS, a.nodeInfo.legalIdentity).returnValue.get()
+                    connection.proxy.startFlow(::CashPaymentFlow, 1.DOLLARS, a.mainIdentity).returnValue.get()
                 }
             }
 

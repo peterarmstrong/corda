@@ -54,7 +54,7 @@ open class FinalityFlow(val transactions: Iterable<SignedTransaction>,
     }
 
     open protected val me
-        get() = serviceHub.myInfo.legalIdentity
+        get() = serviceHub.legalIdentity.party
 
     @Suspendable
     @Throws(NotaryException::class)

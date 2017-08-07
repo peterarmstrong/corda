@@ -30,7 +30,7 @@ class CordappScanningDriverTest {
             val initiatedFlowClass = alice.rpcClientToNode()
                     .start(user.username, user.password)
                     .proxy
-                    .startFlow(::ReceiveFlow, bob.nodeInfo.legalIdentity)
+                    .startFlow(::ReceiveFlow, bob.mainIdentity)
                     .returnValue
             assertThat(initiatedFlowClass.getOrThrow()).isEqualTo(SendSubClassFlow::class.java.name)
         }

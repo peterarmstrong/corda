@@ -26,7 +26,7 @@ class DummyIssueAndMove(private val notary: Party, private val counterpartyNode:
     @Suspendable
     override fun call() = serviceHub.run {
         // Self issue an asset
-        val state = State(listOf(myInfo.legalIdentity), discriminator)
+        val state = State(listOf(legalIdentity.party), discriminator)
         val issueTx = signInitialTransaction(TransactionBuilder(notary).apply {
             addOutputState(state)
         })

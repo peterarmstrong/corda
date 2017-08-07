@@ -5,6 +5,7 @@ import com.jcraft.jsch.Session
 import net.corda.client.rpc.CordaRPCClient
 import net.corda.client.rpc.CordaRPCConnection
 import net.corda.core.future
+import net.corda.core.identity.Party
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.node.NodeInfo
 import net.corda.core.utilities.NetworkHostAndPort
@@ -36,7 +37,8 @@ class NodeConnection(val remoteNode: RemoteNode, private val jSchSession: Sessio
     private val client = CordaRPCClient(localTunnelAddress)
     private var rpcConnection: CordaRPCConnection? = null
     val proxy: CordaRPCOps get() = rpcConnection?.proxy ?: throw IllegalStateException("proxy requested, but the client is not running")
-    val info: NodeInfo by lazy { proxy.nodeIdentity() }
+    val info: NodeInfo by lazy { proxy.nodeInfo() } // TODO used only when queried for advertised services
+    val mainIdentity: Party by lazy { proxy.nodeMainIdentity() }
 
     fun <A> doWhileClientStopped(action: () -> A): A {
         val connection = rpcConnection

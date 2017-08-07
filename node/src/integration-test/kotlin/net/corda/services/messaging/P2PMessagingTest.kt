@@ -165,7 +165,7 @@ class P2PMessagingTest : NodeBasedTest() {
         val requestsReceived = AtomicInteger(0)
         val firstRequestReceived = CountDownLatch(1)
         distributedServiceNodes.forEach {
-            val nodeName = it.info.legalIdentity.name
+            val nodeName = it.services.legalIdentity.name
             var ignoreRequests = false
             it.network.addMessageHandler(dummyTopic, DEFAULT_SESSION_ID) { netMessage, _ ->
                 requestsReceived.incrementAndGet()

@@ -183,8 +183,9 @@ fun runLoadTests(configuration: LoadTestConfiguration, tests: List<Pair<LoadTest
             log.info("Got node info of ${connection.remoteNode.hostname}: $info!")
             val (otherInfo, infoUpdates) = connection.proxy.networkMapFeed()
             infoUpdates.notUsed()
-            val pubKeysString = otherInfo.map {
-                "    ${it.legalIdentity.name}: ${it.legalIdentity.owningKey.toBase58String()}"
+            val pubKeysString = otherInfo.map { // TODO Rethink, we loose ability for nice showing of NodeInfos.
+                "NodeInfo identities set:\n" +
+                        it.legalIdentitiesAndCerts.fold("") { acc, elem -> acc + "\n" + elem.name + ": " + elem.owningKey.toBase58String() }
             }.joinToString("\n")
             log.info("${connection.remoteNode.hostname} waiting for network map")
             connection.proxy.waitUntilRegisteredWithNetworkMap().get()

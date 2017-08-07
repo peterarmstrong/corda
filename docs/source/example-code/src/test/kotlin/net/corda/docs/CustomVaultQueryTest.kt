@@ -65,7 +65,7 @@ class CustomVaultQueryTest {
         // Use NodeA as issuer and create some dollars
         val flowHandle1 = nodeA.services.startFlow(CashIssueFlow(amountToIssue,
                 OpaqueBytes.of(0x01),
-                nodeA.info.legalIdentity,
+                nodeA.services.legalIdentity.party,
                 notaryNode.info.notaryIdentity,
                 false))
         // Wait for the flow to stop and print
@@ -74,9 +74,9 @@ class CustomVaultQueryTest {
 
     private fun topUpCurrencies() {
         val flowHandle1 = nodeA.services.startFlow(TopupIssuerFlow.TopupIssuanceRequester(
-                nodeA.info.legalIdentity,
+                nodeA.services.legalIdentity.party,
                 OpaqueBytes.of(0x01),
-                nodeA.info.legalIdentity,
+                nodeA.services.legalIdentity.party,
                 notaryNode.info.notaryIdentity))
         flowHandle1.resultFuture.getOrThrow()
     }

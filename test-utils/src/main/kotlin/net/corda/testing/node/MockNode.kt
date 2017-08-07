@@ -169,7 +169,7 @@ class MockNetwork(private val networkSendManuallyPumped: Boolean = false,
             val caCertificates: Array<X509Certificate> = listOf(legalIdentity.certificate.cert, clientCa?.certificate?.cert)
                     .filterNotNull()
                     .toTypedArray()
-            return InMemoryIdentityService((mockNet.identities + info.legalIdentityAndCert).toSet(),
+            return InMemoryIdentityService((mockNet.identities + services.legalIdentity).toSet(),
                     trustRoot = trustRoot, caCertificates = *caCertificates)
         }
 
@@ -220,7 +220,7 @@ class MockNetwork(private val networkSendManuallyPumped: Boolean = false,
 
         override fun start() {
             super.start()
-            mockNet.identities.add(info.legalIdentityAndCert)
+            mockNet.identities.add(services.legalIdentity)
         }
 
         // Allow unit tests to modify the plugin list before the node start,
@@ -332,6 +332,16 @@ class MockNetwork(private val networkSendManuallyPumped: Boolean = false,
     }
 
     /**
+     * Register network identities in identity service, normally it's done on network map cache change, but we may run without
+     * network map service.
+     */
+    fun registerIdentities(){
+        nodes.forEach { itNode ->
+            nodes.map { it.services.legalIdentity }.forEach(itNode.services.identityService::registerIdentity)
+        }
+    }
+
+    /**
      * A bundle that separates the generic user nodes and service-providing nodes. A real network might not be so
      * clearly separated, but this is convenient for testing.
      */
@@ -356,9 +366,7 @@ class MockNetwork(private val networkSendManuallyPumped: Boolean = false,
         repeat(numPartyNodes) {
             nodes += createPartyNode(mapAddress)
         }
-        nodes.forEach { itNode ->
-            nodes.map { it.info.legalIdentityAndCert }.forEach(itNode.services.identityService::registerIdentity)
-        }
+        registerIdentities()
         return BasketOfNodes(nodes, notaryNode, mapNode)
     }
 

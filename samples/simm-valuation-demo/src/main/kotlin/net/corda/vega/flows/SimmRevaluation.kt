@@ -22,7 +22,7 @@ object SimmRevaluation {
         override fun call(): Unit {
             val stateAndRef = serviceHub.vaultQueryService.queryBy<PortfolioState>(VaultQueryCriteria(stateRefs = listOf(curStateRef))).states.single()
             val curState = stateAndRef.state.data
-            val myIdentity = serviceHub.myInfo.legalIdentity
+            val myIdentity = serviceHub.legalIdentity.party
             if (myIdentity == curState.participants[0]) {
                 val otherParty = serviceHub.identityService.partyFromAnonymous(curState.participants[1])
                 require(otherParty != null) { "Other party must be known by this node" }

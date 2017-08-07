@@ -20,9 +20,11 @@ import net.corda.client.jfx.utils.unique
 import net.corda.core.contracts.Amount
 import net.corda.core.contracts.sumOrNull
 import net.corda.core.contracts.withoutIssuer
+import net.corda.core.crypto.toBase58String
 import net.corda.core.flows.FlowException
 import net.corda.core.getOrThrow
 import net.corda.core.identity.Party
+import net.corda.core.identity.PartyAndCertificate
 import net.corda.core.messaging.FlowHandle
 import net.corda.core.messaging.startFlow
 import net.corda.core.node.NodeInfo
@@ -49,7 +51,7 @@ class NewTransaction : Fragment() {
     private val transactionTypeCB by fxid<ChoiceBox<CashTransaction>>()
     private val partyATextField by fxid<TextField>()
     private val partyALabel by fxid<Label>()
-    private val partyBChoiceBox by fxid<ChoiceBox<NodeInfo>>()
+    private val partyBChoiceBox by fxid<ChoiceBox<PartyAndCertificate>>()
     private val partyBLabel by fxid<Label>()
     private val issuerLabel by fxid<Label>()
     private val issuerTextField by fxid<TextField>()
@@ -98,7 +100,7 @@ class NewTransaction : Fragment() {
                         command.amount,
                         command.recipient,
                         command.issueRef,
-                        myIdentity.value!!.legalIdentity,
+                        myIdentity.value!!,
                         command.notary,
                         command.anonymous)
             } else {
@@ -156,9 +158,9 @@ class NewTransaction : Fragment() {
             when (it) {
                 executeButton -> when (transactionTypeCB.value) {
                     CashTransaction.Issue -> {
-                        CashFlowCommand.IssueCash(Amount.fromDecimal(amount.value, currencyChoiceBox.value), issueRef, partyBChoiceBox.value.legalIdentity, notaries.first().notaryIdentity, anonymous)
+                        CashFlowCommand.IssueCash(Amount.fromDecimal(amount.value, currencyChoiceBox.value), issueRef, partyBChoiceBox.value.party, notaries.first().notaryIdentity, anonymous)
                     }
-                    CashTransaction.Pay -> CashFlowCommand.PayCash(Amount.fromDecimal(amount.value, currencyChoiceBox.value), partyBChoiceBox.value.legalIdentity, anonymous = anonymous)
+                    CashTransaction.Pay -> CashFlowCommand.PayCash(Amount.fromDecimal(amount.value, currencyChoiceBox.value), partyBChoiceBox.value.party, anonymous = anonymous)
                     CashTransaction.Exit -> CashFlowCommand.ExitCash(Amount.fromDecimal(amount.value, currencyChoiceBox.value), issueRef)
                     else -> null
                 }
@@ -178,7 +180,7 @@ class NewTransaction : Fragment() {
 
         // Party A textfield always display my identity name, not editable.
         partyATextField.isEditable = false
-        partyATextField.textProperty().bind(myIdentity.map { it?.legalIdentity?.let { PartyNameFormatter.short.format(it.name) } ?: "" })
+        partyATextField.textProperty().bind(myIdentity.map { it?.let { PartyNameFormatter.short.format(it.name) } ?: "" })
         partyALabel.textProperty().bind(transactionTypeCB.valueProperty().map { it?.partyNameA?.let { "$it : " } })
         partyATextField.visibleProperty().bind(transactionTypeCB.valueProperty().map { it?.partyNameA }.isNotNull())
 
@@ -186,18 +188,21 @@ class NewTransaction : Fragment() {
         partyBLabel.textProperty().bind(transactionTypeCB.valueProperty().map { it?.partyNameB?.let { "$it : " } })
         partyBChoiceBox.apply {
             visibleProperty().bind(transactionTypeCB.valueProperty().map { it?.partyNameB }.isNotNull())
-            items = parties.sorted()
-            converter = stringConverter { it?.legalIdentity?.let { PartyNameFormatter.short.format(it.name) } ?: "" }
+            val services = parties.flatMap { it.advertisedServices.map { it.identity }}
+            // TODO It's a bit hacky and ugly now, because we lost main identity... and we will loose services.
+            items = FXCollections.observableList(parties.flatMap { it.legalIdentitiesAndCerts } - services).sorted()
+            converter = stringConverter { it?.let { PartyNameFormatter.short.format(it.name) } ?: "" }
         }
         // Issuer
         issuerLabel.visibleProperty().bind(transactionTypeCB.valueProperty().isNotNull)
+        // TODO This concept should burn (after services removal...)
         issuerChoiceBox.apply {
-            items = issuers.map { it.legalIdentity }.unique().sorted()
+            items = issuers.map { it.identity.party }.unique().sorted() // TODO test
             converter = stringConverter { PartyNameFormatter.short.format(it.name) }
             visibleProperty().bind(transactionTypeCB.valueProperty().map { it == CashTransaction.Pay })
         }
         issuerTextField.apply {
-            textProperty().bind(myIdentity.map { it?.legalIdentity?.let { PartyNameFormatter.short.format(it.name) } })
+            textProperty().bind(myIdentity.map { it?.let { PartyNameFormatter.short.format(it.name) } })
             visibleProperty().bind(transactionTypeCB.valueProperty().map { it == CashTransaction.Issue || it == CashTransaction.Exit })
             isEditable = false
         }
@@ -213,7 +218,7 @@ class NewTransaction : Fragment() {
         // TODO : Create a currency model to store these values
         currencyChoiceBox.items = currencyItems
         currencyChoiceBox.visibleProperty().bind(transactionTypeCB.valueProperty().isNotNull)
-        val issuer = Bindings.createObjectBinding({ if (issuerChoiceBox.isVisible) issuerChoiceBox.value else myIdentity.value?.legalIdentity }, arrayOf(myIdentity, issuerChoiceBox.visibleProperty(), issuerChoiceBox.valueProperty()))
+        val issuer = Bindings.createObjectBinding({ if (issuerChoiceBox.isVisible) issuerChoiceBox.value else myIdentity.value }, arrayOf(myIdentity, issuerChoiceBox.visibleProperty(), issuerChoiceBox.valueProperty()))
         availableAmount.visibleProperty().bind(
                 issuer.isNotNull.and(currencyChoiceBox.valueProperty().isNotNull).and(transactionTypeCB.valueProperty().booleanBinding(transactionTypeCB.valueProperty()) { it != CashTransaction.Issue })
         )

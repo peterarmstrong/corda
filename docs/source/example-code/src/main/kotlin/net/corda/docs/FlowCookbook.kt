@@ -114,18 +114,17 @@ object FlowCookbook {
             val firstNotary: Party = serviceHub.networkMapCache.notaryNodes[0].notaryIdentity
             // DOCEND 1
 
-            // We may also need to identify a specific counterparty. Again, we
-            // do so using the network map.
+            // We may also need to identify a specific counterparty. We
+            // do so using identity service.
             // DOCSTART 2
-            val namedCounterparty: Party? = serviceHub.networkMapCache.getNodeByLegalName(X500Name("CN=NodeA,O=NodeA,L=London,C=UK"))?.legalIdentity
-            val keyedCounterparty: Party? = serviceHub.networkMapCache.getNodeByLegalIdentityKey(dummyPubKey)?.legalIdentity
-            val firstCounterparty: Party = serviceHub.networkMapCache.partyNodes[0].legalIdentity
+            val namedCounterparty: Party? = serviceHub.identityService.partyFromX500Name(X500Name("CN=NodeA,O=NodeA,L=London,C=UK"))
+            val keyedCounterparty: Party? = serviceHub.identityService.partyFromKey(dummyPubKey)
             // DOCEND 2
 
             // Finally, we can use the map to identify nodes providing a
             // specific service (e.g. a regulator or an oracle).
             // DOCSTART 3
-            val regulator: Party = serviceHub.networkMapCache.getNodesWithService(ServiceType.regulator)[0].legalIdentity
+            val regulator: Party = serviceHub.networkMapCache.getPeersWithService(ServiceType.regulator)[0].identity.party
             // DOCEND 3
 
             /**-----------------------------
