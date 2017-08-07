@@ -27,6 +27,7 @@ class ResolveTransactionsFlow(private val txHashes: Set<SecureHash>,
     constructor(signedTransaction: SignedTransaction, otherSide: Party) : this(dependencyIDs(signedTransaction), otherSide) {
         this.signedTransaction = signedTransaction
     }
+
     companion object {
         private fun dependencyIDs(stx: SignedTransaction) = stx.inputs.map { it.txhash }.toSet()
 
@@ -146,7 +147,7 @@ class ResolveTransactionsFlow(private val txHashes: Set<SecureHash>,
             if (limitCounter > limit)
                 throw ExcessivelyLargeTransactionGraph()
         }
-        return resultQ.values
+        return resultQ.values.filter { serviceHub.validatedTransactions.getTransaction(it.id) == null }
     }
 
     /**
