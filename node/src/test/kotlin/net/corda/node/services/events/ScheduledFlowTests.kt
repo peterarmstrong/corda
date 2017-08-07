@@ -152,7 +152,7 @@ class ScheduledFlowTests {
         val stateMapB = statesFromB.associateBy { it.ref.txhash }
 
         val uniqueToA = stateMapA.filter { !stateMapB.containsKey(it.key) }
-        val uniqueToB = stateMapB.filter { !stateMapB.containsKey(it.key) }
+        val uniqueToB = stateMapB.filter { !stateMapA.containsKey(it.key) }
 
         require(uniqueToA.isEmpty()) { "A contain some transactions B doesn't have $uniqueToA vs $uniqueToB" }
         require(uniqueToB.isEmpty()) { "B contain some transactions A doesn't have $uniqueToB vs $uniqueToA" }
