@@ -140,10 +140,6 @@ class ScheduledFlowTests {
         }
         mockNet.waitQuiescent()
 
-        Thread.sleep(1000)
-
-        mockNet.waitQuiescent()
-
         val statesFromA = nodeA.database.transaction {
             queryStatesWithPaging(nodeA.services.vaultQueryService)
         }
