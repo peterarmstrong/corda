@@ -61,7 +61,7 @@ class ScheduledFlowTests {
     class InsertInitialStateFlow(val destination: Party) : FlowLogic<Unit>() {
         @Suspendable
         override fun call() {
-            val scheduledState = ScheduledState(serviceHub.clock.instant().plus(1.seconds),
+            val scheduledState = ScheduledState(serviceHub.clock.instant(),
                     serviceHub.myInfo.legalIdentity, destination)
 
             val notary = serviceHub.networkMapCache.getAnyNotary()

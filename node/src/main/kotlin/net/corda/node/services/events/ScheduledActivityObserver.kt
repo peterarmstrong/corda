@@ -17,7 +17,10 @@ class ScheduledActivityObserver(val services: ServiceHubInternal) {
             consumed.forEach { services.schedulerService.unscheduleStateActivity(it.ref) }
         }
         services.vaultService.updates.subscribe { (_, produced) ->
-            produced.forEach { scheduleStateActivity(it) }
+            produced.forEach {
+                assert(services.validatedTransactions.getTransaction(it.ref.txhash) != null)
+                scheduleStateActivity(it)
+            }
         }
     }
 
