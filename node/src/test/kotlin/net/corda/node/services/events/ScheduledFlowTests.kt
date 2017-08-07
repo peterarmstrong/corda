@@ -15,10 +15,11 @@ import net.corda.core.node.services.vault.QueryCriteria.VaultQueryCriteria
 import net.corda.core.node.services.vault.Sort
 import net.corda.core.node.services.vault.SortAttribute
 import net.corda.core.transactions.TransactionBuilder
-import net.corda.testing.DUMMY_NOTARY
+import net.corda.core.utilities.seconds
 import net.corda.node.services.network.NetworkMapService
 import net.corda.node.services.statemachine.StateMachineManager
 import net.corda.node.services.transactions.ValidatingNotaryService
+import net.corda.testing.DUMMY_NOTARY
 import net.corda.testing.contracts.DummyContract
 import net.corda.testing.node.MockNetwork
 import org.junit.After
@@ -60,7 +61,7 @@ class ScheduledFlowTests {
     class InsertInitialStateFlow(val destination: Party) : FlowLogic<Unit>() {
         @Suspendable
         override fun call() {
-            val scheduledState = ScheduledState(serviceHub.clock.instant(),
+            val scheduledState = ScheduledState(serviceHub.clock.instant().plus(1.seconds),
                     serviceHub.myInfo.legalIdentity, destination)
 
             val notary = serviceHub.networkMapCache.getAnyNotary()
