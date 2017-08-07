@@ -101,7 +101,6 @@ open class FinalityFlow(val transactions: Iterable<SignedTransaction>,
             stx
         }
         serviceHub.recordTransactions(notarised)
-        waitForLedgerCommit(stx.id)
         return notarised
     }
 

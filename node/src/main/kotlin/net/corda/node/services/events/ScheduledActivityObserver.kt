@@ -13,7 +13,7 @@ import net.corda.node.services.statemachine.FlowLogicRefFactoryImpl
  */
 class ScheduledActivityObserver(val services: ServiceHubInternal) {
     init {
-        services.vaultService.rawUpdates.subscribe { (consumed, produced) ->
+        services.vaultService.updates.subscribe { (consumed, produced) ->
             consumed.forEach { services.schedulerService.unscheduleStateActivity(it.ref) }
             produced.forEach { scheduleStateActivity(it) }
         }

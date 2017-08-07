@@ -15,10 +15,10 @@ import net.corda.core.node.services.vault.QueryCriteria.VaultQueryCriteria
 import net.corda.core.node.services.vault.Sort
 import net.corda.core.node.services.vault.SortAttribute
 import net.corda.core.transactions.TransactionBuilder
+import net.corda.testing.DUMMY_NOTARY
 import net.corda.node.services.network.NetworkMapService
 import net.corda.node.services.statemachine.StateMachineManager
 import net.corda.node.services.transactions.ValidatingNotaryService
-import net.corda.testing.DUMMY_NOTARY
 import net.corda.testing.contracts.DummyContract
 import net.corda.testing.node.MockNetwork
 import org.junit.After
@@ -26,7 +26,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.security.PublicKey
-import java.time.Duration
 import java.time.Instant
 import kotlin.test.assertEquals
 
@@ -61,7 +60,7 @@ class ScheduledFlowTests {
     class InsertInitialStateFlow(val destination: Party) : FlowLogic<Unit>() {
         @Suspendable
         override fun call() {
-            val scheduledState = ScheduledState(serviceHub.clock.instant().plus(Duration.ofSeconds(1)),
+            val scheduledState = ScheduledState(serviceHub.clock.instant(),
                     serviceHub.myInfo.legalIdentity, destination)
 
             val notary = serviceHub.networkMapCache.getAnyNotary()
@@ -146,22 +145,7 @@ class ScheduledFlowTests {
         val statesFromB = nodeB.database.transaction {
             queryStatesWithPaging(nodeB.services.vaultQueryService)
         }
-        assertEquals(2 * N, statesFromA.count(), "Expect all states to be present in A")
-        assertEquals(2 * N, statesFromB.count(), "Expect all states to be present in B")
-
-        val stateMapA = statesFromA.associateBy { it.ref.txhash }
-        val stateMapB = statesFromB.associateBy { it.ref.txhash }
-
-        val uniqueToA = stateMapA.filter { !stateMapB.containsKey(it.key) }
-        val uniqueToB = stateMapB.filter { !stateMapA.containsKey(it.key) }
-
-        require(uniqueToA.isEmpty()) { "A contain some transactions B doesn't have $uniqueToA vs $uniqueToB" }
-        require(uniqueToB.isEmpty()) { "B contain some transactions A doesn't have $uniqueToB vs $uniqueToA" }
-
-        stateMapA.forEach {
-            assertEquals(it.value, stateMapB[it.key], "Expect identical data on both nodes")
-        }
-
+        assertEquals(2 * N, statesFromA.count(), "Expect all states to be present")
         assertEquals(statesFromA, statesFromB, "Expect identical data on both nodes")
         assertTrue("Expect all states have run the scheduled task", statesFromB.all { it.state.data.processed })
     }

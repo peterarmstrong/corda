@@ -5,7 +5,6 @@ import net.corda.core.contracts.AbstractAttachment
 import net.corda.core.contracts.Attachment
 import net.corda.core.contracts.NamedByHash
 import net.corda.core.crypto.SecureHash
-import net.corda.core.crypto.commonName
 import net.corda.core.crypto.sha256
 import net.corda.core.flows.FlowException
 import net.corda.core.flows.FlowLogic
@@ -85,7 +84,6 @@ sealed class FetchDataFlow<T : NamedByHash, in W : Any>(
             // network layer.
             val maybeItems = ArrayList<W>(toFetch.size)
             for (hash in toFetch) {
-                logger.info("${serviceHub.myInfo.legalIdentity.name.commonName} Requesting $hash")
                 // We skip the validation here (with unwrap { it }) because we will do it below in validateFetchResponse.
                 // The only thing checked is the object type. It is a protocol violation to send results out of order.
                 maybeItems += sendAndReceive<List<W>>(otherSide, Request.Data(NonEmptySet.of(hash), dataType)).unwrap { it }

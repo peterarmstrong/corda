@@ -27,7 +27,6 @@ class ResolveTransactionsFlow(private val txHashes: Set<SecureHash>,
     constructor(signedTransaction: SignedTransaction, otherSide: Party) : this(dependencyIDs(signedTransaction), otherSide) {
         this.signedTransaction = signedTransaction
     }
-
     companion object {
         private fun dependencyIDs(stx: SignedTransaction) = stx.inputs.map { it.txhash }.toSet()
 
@@ -81,8 +80,13 @@ class ResolveTransactionsFlow(private val txHashes: Set<SecureHash>,
     @Throws(FetchDataFlow.HashNotFound::class)
     override fun call(): List<SignedTransaction> {
         // Start fetching data.
-        val newTxns = topologicalSort(downloadDependencies(txHashes))
-        newTxns.forEach {
+        val newTxns = downloadDependencies(txHashes)
+        fetchMissingAttachments(signedTransaction?.let { newTxns + it } ?: newTxns)
+        send(otherSide, FetchDataFlow.Request.End)
+        // Finish fetching data.
+
+        val result = topologicalSort(newTxns)
+        result.forEach {
             // For each transaction, verify it and insert it into the database. As we are iterating over them in a
             // depth-first order, we should not encounter any verification failures due to missing data. If we fail
             // half way through, it's no big deal, although it might result in us attempting to re-download data
@@ -91,17 +95,13 @@ class ResolveTransactionsFlow(private val txHashes: Set<SecureHash>,
             serviceHub.recordTransactions(it)
         }
 
-        fetchMissingAttachments(signedTransaction?.let { newTxns + it } ?: newTxns)
-        send(otherSide, FetchDataFlow.Request.End)
-        // Finish fetching data.
-
         return signedTransaction?.let {
-            newTxns + it
-        } ?: newTxns
+            result + it
+        } ?: result
     }
 
     @Suspendable
-    private fun downloadDependencies(depsToCheck: Set<SecureHash>): Collection<SignedTransaction> {
+    private fun downloadDependencies(depsToCheck: Set<SecureHash>): List<SignedTransaction> {
         // Maintain a work queue of all hashes to load/download, initialised with our starting set. Then do a breadth
         // first traversal across the dependency graph.
         //
@@ -147,7 +147,7 @@ class ResolveTransactionsFlow(private val txHashes: Set<SecureHash>,
             if (limitCounter > limit)
                 throw ExcessivelyLargeTransactionGraph()
         }
-        return resultQ.values
+        return resultQ.values.toList()
     }
 
     /**
