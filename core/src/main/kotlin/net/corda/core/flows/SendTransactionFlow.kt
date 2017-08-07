@@ -58,6 +58,7 @@ sealed class DataVendingFlow(val otherSide: Party, val payload: Any) : FlowLogic
             }
             payload = when (dataRequest.dataType) {
                 FetchDataFlow.DataType.TRANSACTION -> dataRequest.hashes.map {
+                    waitForLedgerCommit(it)
                     serviceHub.validatedTransactions.getTransaction(it) ?: throw FetchDataFlow.HashNotFound(it)
                 }
                 FetchDataFlow.DataType.ATTACHMENT -> dataRequest.hashes.map {
