@@ -138,6 +138,9 @@ class ScheduledFlowTests {
             nodeB.services.startFlow(InsertInitialStateFlow(nodeA.info.legalIdentity))
         }
         mockNet.waitQuiescent()
+
+        Thread.sleep(1000)
+
         mockNet.waitQuiescent()
 
         val statesFromA = nodeA.database.transaction {
