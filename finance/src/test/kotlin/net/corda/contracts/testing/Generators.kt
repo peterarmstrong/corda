@@ -38,7 +38,7 @@ class MoveGenerator : Generator<Cash.Commands.Move>(Cash.Commands.Move::class.ja
 
 class IssueGenerator : Generator<Cash.Commands.Issue>(Cash.Commands.Issue::class.java) {
     override fun generate(random: SourceOfRandomness, status: GenerationStatus): Cash.Commands.Issue {
-        return Cash.Commands.Issue(random.nextLong())
+        return Cash.Commands.Issue()
     }
 }
 

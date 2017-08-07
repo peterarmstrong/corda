@@ -37,10 +37,11 @@ interface FungibleAsset<T : Any> : OwnableState {
         interface Move : MoveCommand, Commands
 
         /**
-         * Allows new asset states to be issued into existence: the nonce ("number used once") ensures the transaction
-         * has a unique ID even when there are no inputs.
+         * Allows new asset states to be issued into existence. Note that a privacy salt is utilised in every
+         * transaction, which ensures there is always a unique transaction id even when there are no inputs, such as in
+         * issue commands.
          */
-        interface Issue : IssueCommand, Commands
+        interface Issue : CommandData, Commands
 
         /**
          * A command stating that money has been withdrawn from the shared ledger and is now accounted for

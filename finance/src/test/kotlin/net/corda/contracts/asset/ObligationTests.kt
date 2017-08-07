@@ -126,10 +126,6 @@ class ObligationTests {
                         template = megaCorpDollarSettlement
                 )
             }
-            tweak {
-                command(MINI_CORP_PUBKEY) { Obligation.Commands.Issue(0) }
-                this `fails with` "has a nonce"
-            }
             command(MINI_CORP_PUBKEY) { Obligation.Commands.Issue() }
             this.verifies()
         }

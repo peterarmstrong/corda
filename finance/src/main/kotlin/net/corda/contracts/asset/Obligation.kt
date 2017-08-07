@@ -10,7 +10,6 @@ import net.corda.core.contracts.*
 import net.corda.core.contracts.clauses.*
 import net.corda.core.crypto.SecureHash
 import net.corda.core.crypto.entropyToKeyPair
-import net.corda.core.crypto.random63BitValue
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.AnonymousParty
 import net.corda.core.identity.Party
@@ -355,10 +354,10 @@ class Obligation<P : Any> : Contract {
         data class Move(override val contractHash: SecureHash? = null) : Commands, FungibleAsset.Commands.Move
 
         /**
-         * Allows new obligation states to be issued into existence: the nonce ("number used once") ensures the
-         * transaction has a unique ID even when there are no inputs.
+         * Allows new obligation states to be issued into existence. Uniqueness regarding transaction id is achieved by
+         * privacy salt, see [FungibleAsset.Commands.Issue].
          */
-        data class Issue(override val nonce: Long = random63BitValue()) : FungibleAsset.Commands.Issue, Commands
+        class Issue : FungibleAsset.Commands.Issue, Commands
 
         /**
          * A command stating that the obligor is settling some or all of the amount owed by transferring a suitable

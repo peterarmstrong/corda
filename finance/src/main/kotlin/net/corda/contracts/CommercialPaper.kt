@@ -9,7 +9,6 @@ import net.corda.core.contracts.clauses.Clause
 import net.corda.core.contracts.clauses.GroupClauseVerifier
 import net.corda.core.contracts.clauses.verifyClause
 import net.corda.core.crypto.SecureHash
-import net.corda.core.crypto.random63BitValue
 import net.corda.core.crypto.toBase58String
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
@@ -190,7 +189,7 @@ class CommercialPaper : Contract {
     interface Commands : CommandData {
         data class Move(override val contractHash: SecureHash? = null) : FungibleAsset.Commands.Move, Commands
         class Redeem : TypeOnlyCommandData(), Commands
-        data class Issue(override val nonce: Long = random63BitValue()) : IssueCommand, Commands
+        class Issue : CommandData, Commands
     }
 
     /**

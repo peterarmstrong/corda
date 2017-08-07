@@ -25,7 +25,7 @@ abstract class AbstractIssue<in S : ContractState, C : CommandData, T : Any>(
                         groupingKey: Issued<T>?): Set<C> {
         require(groupingKey != null)
         // TODO: Take in matched commands as a parameter
-        val issueCommand = commands.requireSingleCommand<IssueCommand>()
+        val issueCommand = commands.requireSingleCommand<CommandData>()
 
         // If we have an issue command, perform special processing: the group is allowed to have no inputs,
         // and the output states must have a deposit reference owned by the signer.
@@ -42,7 +42,6 @@ abstract class AbstractIssue<in S : ContractState, C : CommandData, T : Any>(
         val inputAmount = inputs.sumOrZero(groupingKey)
         val outputAmount = outputs.sum()
         requireThat {
-            "the issue command has a nonce" using (issueCommand.value.nonce != 0L)
             // TODO: This doesn't work with the trader demo, so use the underlying key instead
             // "output states are issued by a command signer" by (issuer in issueCommand.signingParties)
             "output states are issued by a command signer" using (issuer.owningKey in issueCommand.signers)

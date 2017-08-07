@@ -9,7 +9,6 @@ import net.corda.core.contracts.clauses.AnyOf
 import net.corda.core.contracts.clauses.GroupClauseVerifier
 import net.corda.core.contracts.clauses.verifyClause
 import net.corda.core.crypto.SecureHash
-import net.corda.core.crypto.newSecureRandom
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
 import net.corda.core.serialization.CordaSerializable
@@ -126,10 +125,10 @@ class CommodityContract : OnLedgerAsset<Commodity, CommodityContract.Commands, C
         data class Move(override val contractHash: SecureHash? = null) : FungibleAsset.Commands.Move, Commands
 
         /**
-         * Allows new commodity states to be issued into existence: the nonce ("number used once") ensures the transaction
-         * has a unique ID even when there are no inputs.
+         * Allows new commodity states to be issued into existence. Uniqueness regarding transaction id is achieved by
+         * privacy salt, see [FungibleAsset.Commands.Issue].
          */
-        data class Issue(override val nonce: Long = newSecureRandom().nextLong()) : FungibleAsset.Commands.Issue, Commands
+        class Issue : FungibleAsset.Commands.Issue, Commands
 
         /**
          * A command stating that money has been withdrawn from the shared ledger and is now accounted for
