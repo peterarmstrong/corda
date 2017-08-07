@@ -145,7 +145,9 @@ class ScheduledFlowTests {
         val statesFromB = nodeB.database.transaction {
             queryStatesWithPaging(nodeB.services.vaultQueryService)
         }
-        assertEquals(2 * N, statesFromA.count(), "Expect all states to be present")
+        assertEquals(2 * N, statesFromA.count(), "Expect all states to be present in A")
+        assertEquals(2 * N, statesFromB.count(), "Expect all states to be present in B")
+
         assertEquals(statesFromA, statesFromB, "Expect identical data on both nodes")
         assertTrue("Expect all states have run the scheduled task", statesFromB.all { it.state.data.processed })
     }
