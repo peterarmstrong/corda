@@ -26,6 +26,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.security.PublicKey
+import java.time.Duration
 import java.time.Instant
 import kotlin.test.assertEquals
 
@@ -60,7 +61,7 @@ class ScheduledFlowTests {
     class InsertInitialStateFlow(val destination: Party) : FlowLogic<Unit>() {
         @Suspendable
         override fun call() {
-            val scheduledState = ScheduledState(serviceHub.clock.instant(),
+            val scheduledState = ScheduledState(serviceHub.clock.instant().plus(Duration.ofSeconds(1)),
                     serviceHub.myInfo.legalIdentity, destination)
 
             val notary = serviceHub.networkMapCache.getAnyNotary()
