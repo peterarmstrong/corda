@@ -15,10 +15,10 @@ import net.corda.core.node.services.vault.QueryCriteria.VaultQueryCriteria
 import net.corda.core.node.services.vault.Sort
 import net.corda.core.node.services.vault.SortAttribute
 import net.corda.core.transactions.TransactionBuilder
-import net.corda.testing.DUMMY_NOTARY
 import net.corda.node.services.network.NetworkMapService
 import net.corda.node.services.statemachine.StateMachineManager
 import net.corda.node.services.transactions.ValidatingNotaryService
+import net.corda.testing.DUMMY_NOTARY
 import net.corda.testing.contracts.DummyContract
 import net.corda.testing.node.MockNetwork
 import org.junit.After
@@ -147,6 +147,13 @@ class ScheduledFlowTests {
         }
         assertEquals(2 * N, statesFromA.count(), "Expect all states to be present in A")
         assertEquals(2 * N, statesFromB.count(), "Expect all states to be present in B")
+
+        val stateMapA = statesFromA.associateBy { it.ref.txhash }
+        val stateMapB = statesFromB.associateBy { it.ref.txhash }
+
+        stateMapA.forEach {
+            assertEquals(it.value, stateMapB[it.key], "Expect identical data on both nodes")
+        }
 
         assertEquals(statesFromA, statesFromB, "Expect identical data on both nodes")
         assertTrue("Expect all states have run the scheduled task", statesFromB.all { it.state.data.processed })
