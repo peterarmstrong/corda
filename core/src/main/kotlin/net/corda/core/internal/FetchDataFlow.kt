@@ -5,6 +5,7 @@ import net.corda.core.contracts.AbstractAttachment
 import net.corda.core.contracts.Attachment
 import net.corda.core.contracts.NamedByHash
 import net.corda.core.crypto.SecureHash
+import net.corda.core.crypto.commonName
 import net.corda.core.crypto.sha256
 import net.corda.core.flows.FlowException
 import net.corda.core.flows.FlowLogic
@@ -178,7 +179,7 @@ class FetchTransactionsFlow(requests: Set<SecureHash>, otherSide: Party) :
     override fun load(txid: SecureHash): SignedTransaction? {
         val v = serviceHub.validatedTransactions.getTransaction(txid)
         if (v == null) {
-            logger.info("Transaction $txid NOT FOUND!!!")
+            logger.info("${serviceHub.myInfo.legalIdentity.name.commonName} : Transaction $txid NOT FOUND!!!")
         }
         return v
     }

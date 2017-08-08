@@ -2,6 +2,7 @@ package net.corda.core.internal
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.crypto.SecureHash
+import net.corda.core.crypto.commonName
 import net.corda.core.flows.FlowLogic
 import net.corda.core.identity.Party
 import net.corda.core.serialization.CordaSerializable
@@ -124,7 +125,9 @@ class ResolveTransactionsFlow(private val txHashes: Set<SecureHash>,
 
         val limit = transactionCountLimit
         var limitCounter = 0
+
         while (nextRequests.isNotEmpty()) {
+            logger.info("${serviceHub.myInfo.legalIdentity.name.commonName} : Downloading dependencies $nextRequests")
             // Don't re-download the same tx when we haven't verified it yet but it's referenced multiple times in the
             // graph we're traversing.
             val notAlreadyFetched = nextRequests.filterNot { it in resultQ }.toSet()
