@@ -5,6 +5,7 @@ import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.UpgradeCommand
 import net.corda.core.contracts.UpgradedContract
 import net.corda.core.contracts.requireThat
+import net.corda.core.crypto.commonName
 import net.corda.core.flows.*
 import net.corda.core.identity.AnonymousPartyAndPath
 import net.corda.core.identity.Party
@@ -19,7 +20,10 @@ import net.corda.core.utilities.unwrap
 class NotifyTransactionHandler(val otherParty: Party) : FlowLogic<Unit>() {
     @Suspendable
     override fun call() {
+        logger.info("${serviceHub.myInfo.legalIdentity.name.commonName} : NotifyTransactionHandler")
         val stx = subFlow(ReceiveTransactionFlow(otherParty))
+        logger.info("${serviceHub.myInfo.legalIdentity.name.commonName} : Recording Transaction ${stx.id}")
+
         serviceHub.recordTransactions(stx)
     }
 }
@@ -76,6 +80,7 @@ class ContractUpgradeHandler(otherSide: Party) : AbstractStateReplacementFlow.Ac
 
 class TransactionKeyHandler(val otherSide: Party, val revocationEnabled: Boolean) : FlowLogic<Unit>() {
     constructor(otherSide: Party) : this(otherSide, false)
+
     companion object {
         object SENDING_KEY : ProgressTracker.Step("Sending key")
     }
