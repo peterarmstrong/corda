@@ -175,7 +175,6 @@ class RequeryConfigurationTest : TestDependencyInjectionBase() {
             contractStateClassName = DummyContract.SingleOwnerState::class.java.name
             contractState = DummyContract.SingleOwnerState(owner = AnonymousParty(DUMMY_PUBKEY_1)).serialize().bytes
             notaryName = txn.tx.notary!!.name.toString()
-            notaryKey = txn.tx.notary!!.owningKey.toBase58String()
             recordedTime = Instant.now()
         }
         return state

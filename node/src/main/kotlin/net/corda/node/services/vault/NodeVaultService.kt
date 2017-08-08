@@ -97,7 +97,6 @@ class NodeVaultService(private val services: ServiceHub, dataSourceProperties: P
                         contractStateClassName = it.value.state.data.javaClass.name
                         contractState = it.value.state.serialize(context = STORAGE_CONTEXT).bytes
                         notaryName = it.value.state.notary.name.toString()
-                        notaryKey = it.value.state.notary.owningKey.toBase58String()
                         recordedTime = services.clock.instant()
                     }
                     insert(state)
@@ -373,7 +372,7 @@ class NodeVaultService(private val services: ServiceHub, dataSourceProperties: P
                         AND (vs.lock_id = '$lockId' OR vs.lock_id is null)
                         """ +
                             (if (notary != null)
-                                " AND vs.notary_key = '${notary.owningKey.toBase58String()}'" else "") +
+                                " AND vs.notary_name = '${notary.name}'" else "") +
                             (if (issuerKeysStr != null)
                                 " AND ccs.issuer_key IN ($issuerKeysStr)" else "") +
                             (if (issuerRefsStr != null)

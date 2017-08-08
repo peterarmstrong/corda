@@ -111,7 +111,7 @@ class VaultQueryTests : TestDependencyInjectionBase() {
             services.consumeLinearStates(linearStatesXYZ.states.toList())
             services.consumeLinearStates(linearStatesJKL.states.toList())
             services.consumeDeals(dealStates.states.filter { it.state.data.ref == "456" })
-            services.consumeCash(50.DOLLARS)
+            services.consumeCash(50.DOLLARS, notary = CASH_NOTARY, key = CASH_NOTARY_KEY)
 
             // Total unconsumed states = 4 + 3 + 2 + 1 (new cash change) = 10
             // Total consumed states = 6 + 1 + 2 + 1 = 10
@@ -896,7 +896,7 @@ class VaultQueryTests : TestDependencyInjectionBase() {
             services.consumeLinearStates(linearStatesXYZ.states.toList())
             services.consumeLinearStates(linearStatesJKL.states.toList())
             services.consumeDeals(dealStates.states.filter { it.state.data.ref == "456" })
-            services.consumeCash(50.DOLLARS)
+            services.consumeCash(50.DOLLARS, notary = CASH_NOTARY, key = CASH_NOTARY_KEY)
 
             // UNCONSUMED states (default)
 
@@ -966,7 +966,7 @@ class VaultQueryTests : TestDependencyInjectionBase() {
             services.fillWithSomeTestLinearStates(10)
             services.fillWithSomeTestDeals(listOf("123", "456", "789"))
 
-            services.consumeCash(100.DOLLARS)
+            services.consumeCash(100.DOLLARS, notary = CASH_NOTARY, key = CASH_NOTARY_KEY)
 
             val asOfDateTime = TODAY
             val consumedAfterExpression = TimeCondition(
