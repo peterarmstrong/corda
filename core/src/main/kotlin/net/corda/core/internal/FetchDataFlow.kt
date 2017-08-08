@@ -175,5 +175,11 @@ class FetchAttachmentsFlow(requests: Set<SecureHash>,
 class FetchTransactionsFlow(requests: Set<SecureHash>, otherSide: Party) :
         FetchDataFlow<SignedTransaction, SignedTransaction>(requests, otherSide, DataType.TRANSACTION) {
 
-    override fun load(txid: SecureHash): SignedTransaction? = serviceHub.validatedTransactions.getTransaction(txid)
+    override fun load(txid: SecureHash): SignedTransaction? {
+        val v = serviceHub.validatedTransactions.getTransaction(txid)
+        if (v == null) {
+            logger.info("Transaction $txid NOT FOUND!!!")
+        }
+        return v
+    }
 }

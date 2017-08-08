@@ -3,6 +3,7 @@ package net.corda.node.services.api
 import com.google.common.annotations.VisibleForTesting
 import com.google.common.util.concurrent.ListenableFuture
 import net.corda.core.crypto.SecureHash
+import net.corda.core.crypto.commonName
 import net.corda.core.flows.FlowInitiator
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.StateMachineRunId
@@ -91,7 +92,7 @@ interface ServiceHubInternal : PluginServiceHub {
 
     override fun recordTransactions(txs: Iterable<SignedTransaction>) {
         val recordedTransactions = txs.filter {
-            log.info("Added Transaction ${it.id}")
+            log.info("${myInfo.legalIdentity.name.commonName} Added Transaction ${it.id}")
             validatedTransactions.addTransaction(it)
         }
         require(recordedTransactions.isNotEmpty()) { "No transactions passed in for recording" }
