@@ -1,6 +1,7 @@
 package net.corda.core.flows
 
 import co.paralleluniverse.fibers.Suspendable
+import net.corda.core.crypto.commonName
 import net.corda.core.identity.Party
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.NonEmptySet
@@ -20,6 +21,7 @@ class BroadcastTransactionFlow(val notarisedTransaction: SignedTransaction,
     @Suspendable
     override fun call() {
         // TODO: Messaging layer should handle this broadcast for us
+        logger.info("${serviceHub.myInfo.legalIdentity.name.commonName} : Broadcasting to $participants")
         participants.filter { it != serviceHub.myInfo.legalIdentity }.forEach { participant ->
             // SendTransactionFlow allows otherParty to access our data to resolve the transaction.
             subFlow(SendTransactionFlow(participant, notarisedTransaction))
