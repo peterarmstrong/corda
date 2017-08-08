@@ -15,7 +15,6 @@ import net.corda.core.internal.div
 import net.corda.core.messaging.RPCOps
 import net.corda.core.utilities.NetworkHostAndPort
 import net.corda.core.utilities.parseNetworkHostAndPort
-import net.corda.testing.driver.ProcessUtilities
 import net.corda.node.services.RPCUserService
 import net.corda.node.services.messaging.ArtemisMessagingServer
 import net.corda.node.services.messaging.RPCServer
