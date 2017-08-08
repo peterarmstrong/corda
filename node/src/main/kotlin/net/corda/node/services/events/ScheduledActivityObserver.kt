@@ -4,6 +4,7 @@ import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.SchedulableState
 import net.corda.core.contracts.ScheduledStateRef
 import net.corda.core.contracts.StateAndRef
+import net.corda.core.utilities.loggerFor
 import net.corda.node.services.api.ServiceHubInternal
 import net.corda.node.services.statemachine.FlowLogicRefFactoryImpl
 
@@ -12,13 +13,17 @@ import net.corda.node.services.statemachine.FlowLogicRefFactoryImpl
  * consumption.
  */
 class ScheduledActivityObserver(val services: ServiceHubInternal) {
+
+    private val logger = loggerFor<ScheduledActivityObserver>()
+
     init {
-        services.vaultService.rawUpdates.subscribe { (consumed, _) ->
-            consumed.forEach { services.schedulerService.unscheduleStateActivity(it.ref) }
-        }
-        services.vaultService.updates.subscribe { (_, produced) ->
+        services.vaultService.rawUpdates.subscribe { (consumed, produced) ->
+            consumed.forEach {
+                logger.info("unscheduleStateActivity ${it.ref.txhash}")
+                services.schedulerService.unscheduleStateActivity(it.ref)
+            }
             produced.forEach {
-                assert(services.validatedTransactions.getTransaction(it.ref.txhash) != null)
+                logger.info("scheduleStateActivity ${it.ref.txhash}")
                 scheduleStateActivity(it)
             }
         }

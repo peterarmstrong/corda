@@ -90,7 +90,10 @@ interface ServiceHubInternal : PluginServiceHub {
     val configuration: NodeConfiguration
 
     override fun recordTransactions(txs: Iterable<SignedTransaction>) {
-        val recordedTransactions = txs.filter { validatedTransactions.addTransaction(it) }
+        val recordedTransactions = txs.filter {
+            log.info("Added Transaction ${it.id}")
+            validatedTransactions.addTransaction(it)
+        }
         require(recordedTransactions.isNotEmpty()) { "No transactions passed in for recording" }
         val stateMachineRunId = FlowStateMachineImpl.currentStateMachine()?.id
         if (stateMachineRunId != null) {
