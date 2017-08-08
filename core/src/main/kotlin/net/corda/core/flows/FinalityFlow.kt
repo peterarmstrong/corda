@@ -4,6 +4,7 @@ import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateRef
 import net.corda.core.contracts.TransactionState
+import net.corda.core.crypto.commonName
 import net.corda.core.crypto.isFulfilledBy
 import net.corda.core.identity.AbstractParty
 import net.corda.core.identity.Party
@@ -35,9 +36,10 @@ import net.corda.core.utilities.toNonEmptySet
  * @param extraRecipients A list of additional participants to inform of the transaction.
  */
 open class FinalityFlow(val transactions: Iterable<SignedTransaction>,
-                   val extraRecipients: Set<Party>,
-                   override val progressTracker: ProgressTracker) : FlowLogic<List<SignedTransaction>>() {
+                        val extraRecipients: Set<Party>,
+                        override val progressTracker: ProgressTracker) : FlowLogic<List<SignedTransaction>>() {
     val extraParticipants: Set<Participant> = extraRecipients.map { it -> Participant(it, it) }.toSet()
+
     constructor(transaction: SignedTransaction, extraParticipants: Set<Party>) : this(listOf(transaction), extraParticipants, tracker())
     constructor(transaction: SignedTransaction) : this(listOf(transaction), emptySet(), tracker())
     constructor(transaction: SignedTransaction, progressTracker: ProgressTracker) : this(listOf(transaction), emptySet(), progressTracker)
@@ -88,6 +90,7 @@ open class FinalityFlow(val transactions: Iterable<SignedTransaction>,
     open protected fun broadcastTransaction(stx: SignedTransaction, participants: Iterable<Participant>) {
         val wellKnownParticipants = participants.map { it.wellKnown }.filterNotNull()
         if (wellKnownParticipants.isNotEmpty()) {
+            logger.info("${serviceHub.myInfo.legalIdentity.name.commonName} : finalizing ${stx.id}")
             subFlow(BroadcastTransactionFlow(stx, wellKnownParticipants.toNonEmptySet()))
         }
     }
