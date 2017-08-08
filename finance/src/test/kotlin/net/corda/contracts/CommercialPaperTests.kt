@@ -213,7 +213,7 @@ class CommercialPaperTestsGeneric {
     fun `issue move and then redeem`() {
         initialiseTestSerialization()
         val dataSourcePropsAlice = makeTestDataSourceProperties()
-        val databaseAlice = configureDatabase(dataSourcePropsAlice,  databaseProperties = makeTestDatabaseProperties())
+        val databaseAlice = configureDatabase(dataSourcePropsAlice, makeTestDatabaseProperties())
         databaseAlice.transaction {
 
             aliceServices = object : MockServices(ALICE_KEY) {
